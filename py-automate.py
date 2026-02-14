@@ -19,6 +19,11 @@ def get_base_dir() -> Path:
     else:
         return Path(__file__).resolve().parent
 
+def get_scripts_dir() -> Path:
+    if hasattr(sys, "_MEIPASS"):
+        return Path(sys._MEIPASS) / "scripts"
+    else:
+        return Path(__file__).resolve().parent / "scripts"
 
 def run_script(script_path: Path, script_args: list[str]):
     """ Python スクリプトを別モジュールとして読み込み、引数を渡して実行する。
@@ -57,7 +62,7 @@ if __name__ == "__main__":
 
     # 実行形式（.py / .exe）に応じてスクリプトフォルダのパスを取得
     base_dir = get_base_dir()
-    scripts_dir = base_dir / "scripts"
+    scripts_dir = get_scripts_dir()
 
     # `scripts`フォルダをPythonのimportパスに闘魂注入
     #   - スクリプトファイルの親フォルダを解決
@@ -65,7 +70,8 @@ if __name__ == "__main__":
     if str(scripts_dir) not in sys.path:
         sys.path.insert(0, str(scripts_dir))
 
-    script_file = Path(sys.argv[1])
+    script_file = scripts_dir / sys.argv[1]
+
     if not script_file.exists():
         # 1つ目のコマンドライン引数が存在しないファイル
         #   -> 終了コード`1`で終了
